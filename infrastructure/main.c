@@ -23,11 +23,13 @@ int screenHeight = 900;
 Color OFFWHITE = {236, 235, 243, 255};
 Color CUSTOMDARKGRAY = {46, 53, 50, 255};
 
+/*
 float in_raw[FFT_SIZE];
 float in_win[FFT_SIZE];
 float complex out_raw[FFT_SIZE];
 float  out_log[FFT_SIZE];
 float out_smooth[FFT_SIZE];
+*/
 
 SongNode* head = NULL;
 SongNode* tail = NULL;

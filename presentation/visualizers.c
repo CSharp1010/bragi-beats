@@ -102,13 +102,13 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
 
     size_t q = m/2, w = m/3;
 
-   for (size_t i = 0; i < m; ++i) {
+    for (size_t i = 0; i < m; ++i) {
 
         float amplitude = out_smooth[i];
         float angle = angleStep * i;
         float radian = angle *(PI / 360.0f);
         Vector2 centerVis = { centerX + sin(radian*i - (0.25 * GetTime())) * 0.75*maxRadius ,
-                            centerY + cos(radian*i - (0.25 * GetTime())) * 0.75*maxRadius };
+            centerY + cos(radian*i - (0.25 * GetTime())) * 0.75*maxRadius };
 
         Color color = (Color){(unsigned char)(255 * sin(GetTime())), 128, (unsigned char)(255 * cos(GetTime())), 255};
 
@@ -128,17 +128,13 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
 
         int endX1 = { centerX + sin(radian*i) * maxRadius };
         int endX2 = { centerX + sin(-radian*i) * maxRadius };
-        int endX1A ={ centerX + 0.5*(sin(radian*i) * maxRadius) };
-        int endX2A = { centerX + 0.5*(sin(-radian*i) * maxRadius) };
 
         int endY1 = { centerY + cos(radian*i) * maxRadius };
         int endY2 = { centerY + cos(-radian*i) * maxRadius };
-        int endY1A = { centerY + 0.5*(-cos(radian*i) * maxRadius) };
-        int endY2A = { centerY + 0.5*(-cos(-radian*i) * maxRadius) };
 
         Color color = (Color){(unsigned char)(255 * sin(GetTime())), 128, (unsigned char)(255 * cos(GetTime())), 255};
 
-        for (int j = 0; j < 5; j++) { // Example: Simulated glow effect
+        for (int j = 0; j < 5; j++) {
             float fadeFactor = (5 - j) / 5.0f; // Decrease opacity
             Color fadedColor = ColorAlpha(color, fadeFactor);
             DrawCircleLines(endX1, endY1, amplitude * 0.25*maxRadius, fadedColor);
@@ -146,7 +142,7 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
         }
     }
 
-        for (size_t i = 0; i < w; ++i) {
+    for (size_t i = 0; i < w; ++i) {
 
         float amplitude = out_smooth[i];
         float angle = angleStep * i;

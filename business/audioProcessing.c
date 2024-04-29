@@ -5,6 +5,13 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
+
+float in_raw[FFT_SIZE];
+float in_win[FFT_SIZE];
+float complex out_raw[FFT_SIZE];
+float  out_log[FFT_SIZE];
+float out_smooth[FFT_SIZE];
 
 void fft(float in[], size_t stride, float complex out[], size_t n) {
     assert(n > 0);
@@ -75,7 +82,9 @@ size_t ProcessFFT(float in_raw[], float out_log[], float out_smooth[]) {
         out_log[numberFftBins++] = a;
     }
 
+    printf("Debug: FFT Bins %zu, Max Amp %f\n", numberFftBins, max_amp);
     for (size_t i = 0; i < numberFftBins; ++i) {
+        printf("Bin %zu: Log %f, Smooth %f\n", i, out_log[i], out_smooth[i]);
         out_log[i] /= max_amp;
     }
 
