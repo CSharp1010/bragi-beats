@@ -47,19 +47,6 @@ extern float complex out_raw[FFT_SIZE];
 extern float out_log[FFT_SIZE];
 extern float out_smooth[FFT_SIZE];
 
-float in_raw_left[FFT_SIZE];
-float in_raw_right[FFT_SIZE];
-
-float in_win[FFT_SIZE];
-
-float complex out_raw_left[FFT_SIZE];
-float complex out_raw_right[FFT_SIZE];
-
-float  out_log_left[FFT_SIZE];
-float  out_log_right[FFT_SIZE];
-
-float out_smooth_left[FFT_SIZE];
-float out_smooth_right[FFT_SIZE];
 extern Music currentMusic;
 extern Music previousMusic;
 extern bool isPlaying;

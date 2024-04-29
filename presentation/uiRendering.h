@@ -34,6 +34,8 @@ void DrawPlaybackControls(Rectangle playbackControlPanel);
 Layout CalculateLayout(int screenWidth, int screenHeight);
 void DrawUI(Layout layout);
 void DrawTextBox(Rectangle textBoxBounds, char* text, int maxLength, bool* isActive);
+void DrawTotalTime(Music music, int x, int y);
+void DrawSampleInfo(Layout layout);
 
 void PlayPause();
 

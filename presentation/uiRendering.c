@@ -184,6 +184,7 @@ void DrawProgressBar(Music music, int screenHeight, int screenWidth) {
     Rectangle progressBarRectangle = { progressBarX, progressBarY, progressBarActualWidth, progressBarHeight };
     Rectangle fullProgressBarRectangle = { progressBarX, progressBarY, progressBarWidth, progressBarHeight };
 
+    DrawTotalTime(music, progressBarX + 5, progressBarY);
     DrawRectangleRec(fullProgressBarRectangle, DARKGRAY);
     DrawRectangleRec(progressBarRectangle, LIGHTGRAY);
     DrawRectangleLines(progressBarX, progressBarY, progressBarWidth, progressBarHeight, BLACK);
@@ -199,6 +200,37 @@ void DrawProgressBar(Music music, int screenHeight, int screenWidth) {
     }
 }
 
+void DrawTotalTime(Music music, int x, int y) {
+    float songLength = GetMusicTimeLength(music);
+    float timePlayed = GetMusicTimePlayed(music);
+
+    int minutesTotal = (int)songLength / 60;
+    int secondsTotal = (int)songLength % 60;
+    int minutesCurrent = (int)timePlayed / 60;
+    int secondsCurrent = (int)timePlayed % 60;
+
+    char timeInfo[256];
+    snprintf(timeInfo, sizeof(timeInfo), "%02d:%02d / %02d:%02d", minutesCurrent, secondsCurrent, minutesTotal, secondsTotal);
+
+    DrawText(timeInfo, x, y - 30, 18, BLACK);
+}
+
+void DrawSampleInfo(Layout layout) {
+    if (currentSong != NULL && currentSong->song.stream.buffer != NULL) {
+        int sampleSize = currentSong->song.stream.sampleSize;
+        int sampleRate = currentSong->song.stream.sampleRate;
+
+        char infoText[256];
+        sprintf(infoText, "%d Hz\n%d bit", sampleRate, sampleSize);
+
+        int fontSize = 20;
+        int textWidth = MeasureText(infoText, fontSize);
+        int textX = layout.titleBar.x + layout.titleBar.width - textWidth - 10;
+        int textY = layout.titleBar.y + (layout.titleBar.height - fontSize) / 2;
+
+        DrawText(infoText, textX, textY, fontSize, BLACK);
+    }
+}
 
 void DrawUI(Layout layout) {
     int screenWidth = GetScreenWidth();
@@ -290,7 +322,7 @@ void DrawUI(Layout layout) {
     }
 
     DrawVisualizerSelection(&showList, visualizerButtonBounds);
-
+    DrawSampleInfo(layout);
 
     if (isPlaying) {
         const char* text = "Playing Music...";

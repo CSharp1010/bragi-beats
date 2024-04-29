@@ -100,7 +100,6 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
     float maxRadius = ((float)screenHeight - 40 - 100) / 2;
     float angleStep = 180.0f / m;
 
-/*
     size_t q = m/2, w = m/3;
 
    for (size_t i = 0; i < m; ++i) {
@@ -122,21 +121,11 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
     }
 
     for (size_t i = 0; i < q; ++i) {
-*/
-    for (size_t i = 0; i < m; ++i) {
-
 
         float amplitude = out_smooth[i];
         float angle = angleStep * i;
         float radian = angle * (PI / 180.0f);
 
-/*
-        int endX1 = { centerX + sin(radian*i - (0.25 * GetTime())) * maxRadius };
-        int endX2 = { centerX + sin(-radian*i - (0.25 * GetTime())) * maxRadius };
-
-        int endY1 = { centerY + cos(radian*i - (0.25 * GetTime())) * maxRadius };
-        int endY2 = { centerY + cos(-radian*i - (0.25 * GetTime())) * maxRadius };
-*/
         int endX1 = { centerX + sin(radian*i) * maxRadius };
         int endX2 = { centerX + sin(-radian*i) * maxRadius };
         int endX1A ={ centerX + 0.5*(sin(radian*i) * maxRadius) };
