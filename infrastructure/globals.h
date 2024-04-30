@@ -4,7 +4,7 @@
 #include <complex.h>
 #include <raylib.h>
 
-#define FFT_SIZE (1<<15)
+#define FFT_SIZE (1<<14)
 #define MAX_SONGS 100
 #define ARRAY_LEN(xs) sizeof(xs)/sizeof(xs[0])
 
