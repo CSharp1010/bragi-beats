@@ -6,6 +6,12 @@
 #include <string.h>
 #include <assert.h>
 
+float in_raw[FFT_SIZE];
+float in_win[FFT_SIZE];
+float complex out_raw[FFT_SIZE];
+float  out_log[FFT_SIZE];
+float out_smooth[FFT_SIZE];
+
 void fft(float in[], size_t stride, float complex out[], size_t n) {
     assert(n > 0);
 
