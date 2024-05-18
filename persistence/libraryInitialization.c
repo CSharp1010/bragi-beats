@@ -84,6 +84,6 @@ void AddSongToAlbum(const char* albumName, const char* songName, const char* fil
 
 void LoadMusicLibrary(const char *userPath) {
     char fullPath[1024];
-    sprintf(fullPath, "./business/music/users/%s", userPath);
+    sprintf(fullPath, "./database/music/users/%s", userPath);
     processAlbumDirectory(fullPath, NULL);
 }

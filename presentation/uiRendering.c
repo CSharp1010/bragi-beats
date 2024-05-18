@@ -308,7 +308,7 @@ void DrawUI(Layout layout) {
             username[letterCount] = '\0';
         }
         if (IsKeyPressed(KEY_ENTER)) {
-            char path[512] = "./business/music/users/aaron";
+            char path[512] = "./database/music/users/aaron";
             if (processAlbumDirectory(path,"aaron")) {
                 authorizedUser = true;
                 showLibrary = true;
