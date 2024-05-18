@@ -14,12 +14,6 @@ float complex out_raw[FFT_SIZE];
 float  out_log[FFT_SIZE];
 float out_smooth[FFT_SIZE];
 
-float in_raw[FFT_SIZE];
-float in_win[FFT_SIZE];
-float complex out_raw[FFT_SIZE];
-float  out_log[FFT_SIZE];
-float out_smooth[FFT_SIZE];
-
 void fft(float in[], size_t stride, float complex out[], size_t n) {
     // there has to be elements in the array
     assert(n > 0);
