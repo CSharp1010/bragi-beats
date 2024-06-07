@@ -1,5 +1,6 @@
 #include "libraryInitialization.h"
-#include "../infrastructure/globals.h"
+#include "../infrastructure/config.h"
+#include "../infrastructure/file_processing.h"
 
 void initializeLibrary(const char* userPath) {
     DIR *dir;

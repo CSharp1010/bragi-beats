@@ -1,28 +1,45 @@
-# compiler and flags
-CC=gcc
-CFLAGS=-Itest -std=c99 -Wall -Wextra -framework IOKit -framework Cocoa -framework OpenGL \
--I/opt/homebrew/opt/raylib/include -Iraylib \
--I/opt/homebrew/opt/mysql/include/mysql -Imysql \
--I/opt/homebrew/opt/openssl@3/include -Iopenssl \
--Ibusiness -Ipersistence -Ipresentation -Iinfrastructure
+# Determine OS
+UNAME_S := $(shell uname -s)
 
-LDFLAGS=-L/opt/homebrew/opt/raylib/lib -lraylib \
--L/opt/homebrew/opt/mysql/lib -lmysqlclient \
--L/opt/homebrew/opt/zstd/lib -lzstd \
--L/opt/homebrew/opt/openssl@3/lib -lssl -lcrypto -lresolv -lm
+# Compiler and flags
+CC = gcc
+CFLAGS = -std=c99 -Wall -Wextra
+SRC_FILES =     infrastructure/main.c                   business/audioProcessing.c \
+                presentation/uiRendering.c              presentation/visualizers.c \
+                persistence/libraryInitialization.c     infrastructure/playback.c \
+                infrastructure/file_processing.c
+EXECUTABLE = bragibeats
 
-# source files
-SRC_FILES=business/audioProcessing.c
-UNITY_FILES=test/unity.c
-TEST_FILES=test/test_audioProcessing.c
+# OS-specific flags
+ifeq ($(UNAME_S),Darwin) # macOS
+    CFLAGS += -framework IOKit -framework Cocoa -framework OpenGL \
+              -I/opt/homebrew/opt/raylib/include -Iraylib \
+              -I/opt/homebrew/opt/mysql/include/mysql -Imysql \
+              -I/opt/homebrew/opt/openssl@3/include -Iopenssl \
+              -Ibusiness -Ipersistence -Ipresentation -Iinfrastructure
+    LDFLAGS = -L/opt/homebrew/opt/raylib/lib -lraylib \
+              -L/opt/homebrew/opt/mysql/lib -lmysqlclient \
+              -L/opt/homebrew/opt/zstd/lib -lzstd \
+              -L/opt/homebrew/opt/openssl@3/lib -lssl -lcrypto -lresolv -lm \
+              -L/opt/homebrew/opt/fftw/lib -lfftw3f
+else ifeq ($(UNAME_S),Linux) # Linux
+    CFLAGS += -I/usr/local/include -Iraylib -Imysql -Iopenssl -Ibusiness -Ipersistence -Ipresentation -Iinfrastructure
+    LDFLAGS = -L/usr/local/lib -lraylib -lmysqlclient -lzstd -lssl -lcrypto -lm -lfftw3f
+endif
 
-# builds to output
-EXECUTABLE=run_tests
+# Targets
+all: install-dependencies build
 
-# Build and run tests
-all: clean $(EXECUTABLE) run
+install-dependencies:
+ifeq ($(UNAME_S),Darwin)
+	@brew install raylib mysql openssl zstd fftw || true
+else ifeq ($(UNAME_S),Linux)
+	@sudo apt-get update && sudo apt-get install -y libraylib-dev libmysqlclient-dev libssl-dev libzstd-dev libfftw3-dev || true
+endif
 
-$(EXECUTABLE): $(SRC_FILES) $(UNITY_FILES) $(TEST_FILES)
+build: clean $(EXECUTABLE)
+
+$(EXECUTABLE): $(SRC_FILES)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 run:
@@ -31,5 +48,4 @@ run:
 clean:
 	rm -f $(EXECUTABLE)
 
-.PHONY: all clean run
-
+.PHONY: all install-dependencies build run clean

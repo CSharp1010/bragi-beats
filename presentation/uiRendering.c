@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../infrastructure/globals.h"
 #include "uiRendering.h"
 #include "visualizers.h"
+#include "../infrastructure/config.h"
+#include "../infrastructure/playback.h"
+#include "../infrastructure/file_processing.h"
 
 Layout CalculateLayout(int screenWidth, int screenHeight) {
     Layout layout;
@@ -376,7 +378,7 @@ void DrawTextBox(Rectangle textBoxBounds, char* text, int maxLength, bool* isAct
 }
 
 void DrawVisualizerSelection(bool *showList, Rectangle buttonBounds) {
-    const char* visualizerNames[] = {"Bar Chart", "Circle Star", "Wing", "Kaleidoscope"};
+    const char* visualizerNames[] = {"Bar Chart", "Circle Star", "Wing", "Kaleidoscope", "Spiral", "Center", "Sine Wave", "Math", "Radial"};
     int visualizerCount = ARRAY_LEN(visualizerNames);
     int paddingBetweenButtonAndList = 10;
     int buttonHeight = 30;
@@ -398,10 +400,10 @@ void DrawVisualizerSelection(bool *showList, Rectangle buttonBounds) {
     }
 }
 
-void RenderVisualizer(float out_smooth[], size_t numberOfFftBins, int centerX, int centerY, Rectangle visualIzerSpace) {
+void RenderVisualizer(float out_smooth[], float out_phase[], float out_power[], size_t numberOfFftBins, int centerX, int centerY, Rectangle visualizerSpace) {
     switch (currentVisualizer) {
         case VISUALIZER_BAR_CHART:
-            barChartVisual(out_smooth, numberOfFftBins, visualIzerSpace);
+            barChartVisual(out_smooth, numberOfFftBins, visualizerSpace);
             break;
         case VISUALIZER_CIRCLE_STAR:
             circleStarVisual(out_smooth, numberOfFftBins, centerX, centerY);
@@ -411,6 +413,21 @@ void RenderVisualizer(float out_smooth[], size_t numberOfFftBins, int centerX, i
             break;
         case VISUALIZER_KALEIDOSCOPE:
             kaleidoscopeVisual(out_smooth, numberOfFftBins, centerX, centerY);
+            break;
+        case VISUALIZER_SPIRAL:
+            spiralVisual(out_smooth, numberOfFftBins, centerX, centerY);
+            break;
+        case VISUALIZER_CENTER_LINE:
+            centerLineVisualizer(out_smooth, numberOfFftBins, visualizerSpace);
+            break;
+        case VISUALIZER_SINE_WAVE:
+            sineWaveVisualizer(out_smooth, numberOfFftBins, visualizerSpace);
+            break;
+        case VISUALIZER_MATH:
+             mathVisualizer(out_smooth, out_phase, out_power, numberOfFftBins, visualizerSpace);
+            break;
+        case VISUALIZER_RADIAL:
+            radialVisualizer(out_smooth, numberOfFftBins, visualizerSpace);
             break;
         default:
             break;
