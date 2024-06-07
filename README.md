@@ -54,7 +54,8 @@ point on the playback timeline to skip to.
   that the FFT algorithm is being used create the visualizations.
 
 - Login: Currently there is a login feature that was supposed to use a database
-  to for users to login and create accounts but this is being removed soon.
+  to for users to login and create accounts, but this is being removed soon and
+  changed to load a library folder.
 
 ![Drag and Drop](/assets/drag_and_drop.png)
 ![Playing](/assets/playing.png)
@@ -64,7 +65,7 @@ point on the playback timeline to skip to.
 
 Short video for demonstration of the app's functionality:
 
-![Demo Video](/assests/playing_video.mov)
+![Demo Video](/assests/playing_video.gif)
 
 ## License
 
