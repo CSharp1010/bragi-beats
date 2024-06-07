@@ -65,7 +65,7 @@ point on the playback timeline to skip to.
 
 Short video for demonstration of the app's functionality:
 
-![Demo Video](/assests/playing_video.gif)
+![Demo Video](/assets/playing_video.gif)
 
 ## License
 
