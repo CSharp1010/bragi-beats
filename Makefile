@@ -4,9 +4,9 @@ UNAME_S := $(shell uname -s)
 # Compiler and flags
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra
-SRC_FILES =     infrastructure/main.c                   business/audioProcessing.c \
-                presentation/uiRendering.c              presentation/visualizers.c \
-                persistence/libraryInitialization.c     infrastructure/playback.c \
+SRC_FILES =     infrastructure/main.c                   business/audio_processing.c \
+                presentation/ui_rendering.c              presentation/visualizers.c \
+                persistence/library_init.c     infrastructure/playback.c \
                 infrastructure/file_processing.c
 EXECUTABLE = bragibeats
 

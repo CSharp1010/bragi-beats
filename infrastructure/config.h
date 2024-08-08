@@ -3,7 +3,7 @@
 
 #include <raylib.h>
 
-#define FFT_SIZE (1 << 14)
+#define FFT_SIZE (1 << 13)
 #define MAX_SONGS 100
 #define ARRAY_LEN(xs) sizeof(xs) / sizeof(xs[0])
 

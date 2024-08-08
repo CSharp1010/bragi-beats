@@ -1,8 +1,7 @@
 #include <raylib.h>
-#include <fftw3.h>
 #include "config.h"
-#include "../business/audioProcessing.h"
-#include "../presentation/uiRendering.h"
+#include "../audio_processing/audio_processing.h"
+#include "../presentation/ui_renderer.h"
 #include "file_processing.h"
 
 int screenWidth = 1200;
@@ -17,18 +16,16 @@ int main(void) {
     Layout layout = CalculateLayout(screenWidth, screenHeight);
 
     InitAudioDevice();
-    initializeFFT();
 
     while (!WindowShouldClose()) {
         processDroppedFiles();
 
-        size_t numberOfFftBins = ProcessFFT(in_raw, out_log, out_smooth, out_phase, out_power);
+        size_t numberOfFftBins = ProcessFFT(in_raw, out_log, out_smooth);
 
         DrawUI(layout);
         RenderVisualizer(out_smooth, out_phase, out_power, numberOfFftBins, layout.center.centerX, layout.center.centerY, layout.visualizerSpace);
     }
 
-    cleanupFFT();
     CloseAudioDevice();
     CloseWindow();
 

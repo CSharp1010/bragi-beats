@@ -1,5 +1,5 @@
 #include "playback.h"
-#include "../business/audioProcessing.h"
+#include "../audio_processing/audio_processing.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

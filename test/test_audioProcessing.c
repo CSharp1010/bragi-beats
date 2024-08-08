@@ -1,4 +1,4 @@
-#include "../business/audioProcessing.h"
+#include "../business/audio_processing.h"
 #include "../test/unity.h"
 
 #define TEST_FFT_SIZE 16

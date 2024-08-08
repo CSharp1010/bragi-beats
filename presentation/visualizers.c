@@ -4,14 +4,19 @@
 #include <raylib.h>
 #include <math.h>
 
-Color getDynamicColor() {
-    float time = GetTime();
-    return (Color){
-        (unsigned char)(128 + 127 * sin(time)),
-        (unsigned char)(128 + 127 * sin(time + PI / 3)),
-        (unsigned char)(128 + 127 * cos(time + PI / 3)),
-        255
-    };
+Color getDynamicColor(int t) {
+    int r = (int)(127 * (1 + sin(t * 0.1)));
+    int g = (int)(127 * (1 + cos(t * 0.1)));
+    int b = (int)(127 * (1 + sin(t * 0.1 + 3.14159 / 2)));
+    return (Color){r, g, b, 255};
+}
+
+Color getGradientColor(size_t index, size_t total) {
+    float t = (float)index / (float)total;
+    int r = (int)(255 * t);
+    int g = (int)(255 * (1.0f - t));
+    int b = 128;
+    return (Color){r, g, b, 255};
 }
 
 Color getWarmPastelColor(int index) {
@@ -51,8 +56,10 @@ void barChartVisual(float out_smooth[], size_t m, Rectangle visualizerSpace) {
         Vector2 start = {visualizerSpace.x + barWidth * i, visualizerSpace.y + visualizerSpace.height};
         Vector2 end = {visualizerSpace.x + barWidth * i, visualizerSpace.y + visualizerSpace.height - amplitude};
 
+        /*
         Color color = getDynamicColor();
         drawFadeLines(start, end, lineThickness, color);
+        */
     }
 }
 
@@ -61,6 +68,7 @@ void circleVisual(float out_smooth[], size_t m, int centerX, int centerY) {
 
     for (size_t i = 0; i < m; ++i) {
         float amplitude = out_smooth[i];
+        /*
         Color color = getDynamicColor();
 
         for (int j = 0; j < 5; j++) {
@@ -68,6 +76,7 @@ void circleVisual(float out_smooth[], size_t m, int centerX, int centerY) {
             Color fadedColor = ColorAlpha(color, fadeFactor);
             DrawCircleLines(centerX, centerY, amplitude * maxRadius, fadedColor);
         }
+        */
     }
 }
 
@@ -85,8 +94,10 @@ void circleStarVisual(float out_smooth[], size_t m, int centerX, int centerY) {
         Vector2 end = {centerX + cos(radian) * (amplitude * maxRadius),
                        centerY + sin(radian) * (amplitude * maxRadius)};
 
+        /*
         Color color = getDynamicColor();
         DrawLineEx(start, end, lineThickness, color);
+        */
     }
 }
 
@@ -106,9 +117,11 @@ void wingVisual(float out_smooth[], size_t m, int centerX, int centerY) {
         Vector2 end2 = {centerX + sin(-radian) * (amplitude * maxRadius),
                         centerY + cos(-radian) * (amplitude * maxRadius)};
 
+        /*
         Color color = getDynamicColor();
         drawFadeLines(start, end, lineThickness, color);
         drawFadeLines(start, end2, lineThickness, color);
+        */
     }
 }
 
@@ -125,6 +138,7 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
         Vector2 end = {centerX + sin(radian) * amplitude * maxRadius,
                        centerY + cos(radian) * amplitude * maxRadius};
 
+        /*
         Color color = getDynamicColor();
         drawFadeLines(start, end, 2.0f, color);
 
@@ -150,6 +164,7 @@ void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY) 
 
             DrawLineEx(start, end, 2.0f * fadeFactor, fadedColor);
         }
+        */
     }
 }
 
@@ -165,14 +180,18 @@ void spiralVisual(float out_smooth[], size_t m, int centerX, int centerY) {
         float radius = amplitude * maxRadius * (i / (float)(m * 10));
 
         Vector2 currentPoint = { centerX + cos(angle) * radius, centerY + sin(angle) * radius };
+
+        /*
         Color color = getDynamicColor();
 
         drawFadeLines(previousPoint, currentPoint, 2.0f, color);
 
         previousPoint = currentPoint;
+        */
     }
 }
 
+/*
 void centerLineVisualizer(float out_smooth[], size_t m, Rectangle visualizerSpace) {
     float centerY = visualizerSpace.y + visualizerSpace.height / 2;
     float lineThickness = 2.0f;
@@ -193,6 +212,28 @@ void centerLineVisualizer(float out_smooth[], size_t m, Rectangle visualizerSpac
         drawFadeLines(startBottom, endBottom, lineThickness, color);
     }
 }
+*/
+void centerLineVisualizer(float out_smooth[], float out_phase[], float out_power[], size_t m, Rectangle visualizerSpace) {
+    float centerY = visualizerSpace.y + visualizerSpace.height / 2;
+    float maxHeight = visualizerSpace.height / 2;
+    float spacing = visualizerSpace.width / (float)(m - 1);
+    float lineThickness = 14.0f;
+
+    for (size_t i = 0; i < m; ++i) {
+        float amplitude = out_smooth[i] * maxHeight;
+
+        Vector2 startTop = {visualizerSpace.x + i * spacing, centerY};
+        Vector2 endTop = {visualizerSpace.x + i * spacing, centerY - amplitude};
+
+        Vector2 startBottom = {visualizerSpace.x + i * spacing, centerY};
+        Vector2 endBottom = {visualizerSpace.x + i * spacing, centerY + amplitude};
+
+        Color color = getGradientColor(i, m);
+
+        DrawLineEx(startTop, endTop, lineThickness, color);
+        DrawLineEx(startBottom, endBottom, lineThickness, color);
+    }
+}
 
 void sineWaveVisualizer(float out_smooth[], size_t m, Rectangle visualizerSpace) {
     float centerY = visualizerSpace.y + visualizerSpace.height / 2;
@@ -205,8 +246,10 @@ void sineWaveVisualizer(float out_smooth[], size_t m, Rectangle visualizerSpace)
         float x = visualizerSpace.x + i * spacing;
         float y = centerY + amplitude * sinf(frequency * i * 2 * PI / m);
 
+        /*
         Color color = getDynamicColor();
         DrawCircleV((Vector2){x, y}, 2.0f, color);
+        */
     }
 }
 
@@ -223,8 +266,6 @@ void mathVisualizer(float out_smooth[], float out_phase[], float out_power[], si
     for (size_t i = 0; i < numberOfFftBins; ++i) {
         float amplitude = out_smooth[i] * maxRadius;
         float angle = i * angleStep;
-        float x1 = centerX + cosf(angle) * maxRadius;
-        float y1 = centerY + sinf(angle) * maxRadius;
         float x2 = centerX + cosf(angle) * (maxRadius + amplitude) + 30;
         float y2 = centerY + sinf(angle) * (maxRadius + amplitude) + 30;
 

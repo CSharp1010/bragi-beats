@@ -1,7 +1,7 @@
 #include "file_processing.h"
 #include "playback.h"
-#include "../business/audioProcessing.h"
-#include "../persistence/libraryInitialization.h"
+#include "../audio_processing/audio_processing.h"
+#include "../persistence/library_init.h"
 #include <raylib.h>
 #include <dirent.h>
 #include <sys/stat.h>

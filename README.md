@@ -10,7 +10,6 @@ an FFT algorithm. The data from the FFT algorithm will be rendered with the RayL
 - [Features](#features)
 - [Screenshots](#screenshots)
 - [Videos](#videos)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
