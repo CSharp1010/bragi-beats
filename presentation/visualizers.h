@@ -4,14 +4,16 @@
 #include <raylib.h>
 #include <stdlib.h>
 
-void centerLineVisualizer(float out_smooth[], float out_phase[], float out_power[], size_t m, Rectangle visualizerSpace);
-void barChartVisual(float out_smooth[], size_t m, Rectangle visualizerSpace);
-void circleStarVisual(float out_smooth[], size_t m, int centerX, int centerY);
-void circleVisual(float out_smooth[], size_t m, int centerX, int centerY);
-void wingVisual(float out_smooth[], size_t m, int centerX, int centerY);
-void kaleidoscopeVisual(float out_smooth[], size_t m, int centerX, int centerY);
-void spiralVisual(float out_smooth[], size_t m, int centerX, int centerY);
-void sineWaveVisualizer(float out_smooth[], size_t m, Rectangle visualizerSpace);
-void mathVisualizer(float out_smooth[], float out_phase[], float out_power[], size_t numberOfFftBins, Rectangle visualizerSpace);
-void radialVisualizer(float out_smooth[], size_t m, Rectangle visualizerSpace);
-#endif
+typedef struct {
+    Vector2 position;
+    Vector2 velocity;
+    Color color;
+    float life; // Remaining life of the particle
+    float size;
+} Particle;
+
+void DrawBarChart(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
+void DrawIridescentVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
+void DrawIridescentVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
+
+#endif // VISUALIZERS_H

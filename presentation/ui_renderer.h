@@ -1,39 +1,49 @@
-#ifndef UI_RENDERING_H
-#define UI_RENDERING_H
+// ui_renderer.h
 
-#include "../infrastructure/config.h"
-#include "../infrastructure/playback.h"
-#include "../infrastructure/file_processing.h"
+#ifndef UI_RENDERER_H
+#define UI_RENDERER_H
+
 #include <raylib.h>
+#include <stddef.h>
+#include "../audio_processing/audio_processing.h"
 
+// Structure to represent the center point of the visualizer space
 typedef struct {
     int centerX;
     int centerY;
 } VisualizerCenterPoint;
 
+// Structure to hold all layout rectangles for UI components
 typedef struct {
     Rectangle titleBar;
+    Rectangle progressBar;
     Rectangle queue;
     Rectangle visualizerSpace;
     Rectangle playbackControlPanel;
-    Rectangle library;
     VisualizerCenterPoint center;
 } Layout;
 
-void RenderVisualizer(float out_smooth[], float out_phase[], float out_power[], size_t numberOfFftBins, int centerX, int centerY, Rectangle visualizerSpace);
-bool DrawButton(Rectangle bounds, const char* text, int fontSize);
-void DrawTitleBar();
-void DrawSongQueue(Rectangle queue);
-void DrawBottomBar(int screenWidth, int screenHeight);
-void DrawProgressBar(Music music, int screenHeight, int screenWidth);
-void DrawVisualizerSelection(bool *showList, Rectangle buttonBounds);
-void DrawLibrary(Rectangle libraryBounds);
-void DrawLibraryOrQueue(Layout layout);
-void DrawPlaybackControls(Rectangle playbackControlPanel);
+// Function declarations
+void InitUI(void);
+void HandleInput(void);
+void UpdatePlaybackState(void);
+void RenderUI(size_t numberOfFftBins, AudioData *audioData);
+void CleanupUI(void);
 Layout CalculateLayout(int screenWidth, int screenHeight);
-void DrawUI(Layout layout);
-void DrawTextBox(Rectangle textBoxBounds, char* text, int maxLength, bool* isActive);
-void DrawTotalTime(Music music, int x, int y);
+bool DrawButton(Rectangle bounds, const char* text, int fontSize, Color buttonColor, Color textColor);
+void DrawVisualizersButton(void);
+void DrawTextCentered(const char* text, Rectangle bounds, int fontSize, Color color);
+void DrawUI(Layout layout, size_t numberOfFftBins, AudioData *audioData);
+void DrawTitleBar(Rectangle titleBar);
+void DrawSongQueue(Rectangle queueBounds);
+void DrawPlaybackControls(Rectangle playbackControlPanel);
+void DrawProgressBar(Music music,Rectangle progressBarBounds);
+void DrawTotalTime(Music music, Rectangle progressBarBounds);
 void DrawSampleInfo(Layout layout);
+void DrawVisualizerSelection(bool* showList, Rectangle buttonBounds);
+void RenderVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
+void DrawStatusMessage(const char* text, Rectangle titleBar);
+void DrawTestSignalSelection(bool* showList, Rectangle buttonBounds);
+void DrawTestSignalSelectionButton(void);
 
-#endif
+#endif // UI_RENDERER_H

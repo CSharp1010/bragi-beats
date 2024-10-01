@@ -1,35 +1,60 @@
-.clangd
-fft
-fft.c
-fft_notes.md
-fftw-3.3.10/
-sql
-sql.c
-build.sh
-Bragi Beats
-Bragi\ Beats\ Code.zip 
-COSC\ 4460_Class\ Exercise\ 2.docx 
-System\ Design
-notes.md
-fft.c 
-fft_notes.md 
-sql.h 
-bragibeats
-.vscode
 .DS_Store
-Shakey Graves - Heartropolis/
-Men I Trust - Show Me How.wav
-Ross From Friends.wav
-run_tests
 
-### C ###
+# Build artifacts
+bragibeats
+build.sh
+
+# LaTeX build files
+*.aux
+*.log
+*.toc
+
+# Keep source files
+report/
+
+# Clangd
+.clangd
+.clangd/
+
+build/
+*.exe
+*.out
+*.app
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+
+# Ignore dependency directories
+fftw-3.3.10/
+
+# Ignore audio files
+*.wav
+audio/
+
+# Ignore personal notes and temporary files
+notes.md
+*_notes.md
+*.tmp
+
+# Ignore specific project files (if they should not be tracked)
+# fft
+# sql
+# bragibeats
+
+# Ignore compressed files
+*.zip
+
+# Ignore build scripts (if they contain local paths or sensitive information)
+# build.sh
+
+# C language specific ignores
 # Prerequisites
 *.d
 
 # Object files
-*.o
 *.ko
-*.obj
 *.elf
 
 # Linker output
@@ -46,20 +71,6 @@ run_tests
 *.a
 *.la
 *.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
 
 # Debug files
 *.dSYM/
