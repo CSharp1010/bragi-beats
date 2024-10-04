@@ -87,7 +87,7 @@ void fft(AudioData *audioData, size_t n) {
     for (size_t s = 1; s <= log2n; ++s) {
         size_t m = 1 << s;
         size_t half_m = m / 2;
-        size_t twiddle_step = FFT_SIZE / m;
+        size_t twiddle_step = n / m;
         for (size_t k = 0; k < n; k += m) {
             for (size_t j = 0; j < half_m; ++j) {
                 float complex t = twiddle_factors[j * twiddle_step] * audioData->out_raw[k + j + half_m];
@@ -233,13 +233,31 @@ size_t ProcessFFT(AudioData *audioData) {
 
     // Apply log scaling and normalization in one loop
     maxAmplitude = (maxAmplitude > EPSILON) ? maxAmplitude : EPSILON;
-    float logMaxAmplitude = log10f(maxAmplitude + EPSILON);
 
+    // Apply log scaling
     for (size_t i = 0; i < numberOfFftBins; ++i) {
-        // Apply log scaling
         audioData->out_log[i] = log10f(audioData->out_log[i] + EPSILON);
-        // Normalize
-        audioData->out_log[i] /= logMaxAmplitude;
+    }
+
+    // Find the minimum and maximum log values
+    float minLogAmplitude = audioData->out_log[0];
+    float maxLogAmplitude = audioData->out_log[0];
+    for (size_t i = 1; i < numberOfFftBins; ++i) {
+        if (audioData->out_log[i] < minLogAmplitude) {
+            minLogAmplitude = audioData->out_log[i];
+        }
+        if (audioData->out_log[i] > maxLogAmplitude) {
+            maxLogAmplitude = audioData->out_log[i];
+        }
+    }
+
+    // Avoid division by zero
+    float amplitudeRange = maxLogAmplitude - minLogAmplitude;
+    if (amplitudeRange < EPSILON) amplitudeRange = EPSILON;
+
+    // Normalize to range [0, 1]
+    for (size_t i = 0; i < numberOfFftBins; ++i) {
+        audioData->out_log[i] = (audioData->out_log[i] - minLogAmplitude) / amplitudeRange;
     }
 
     // Apply smoothing
@@ -318,7 +336,7 @@ float getMaxPerceptualWeight(float minFreq, float maxFreq) {
 // testing
 
 void generateSineWave(float *buffer, size_t length, float frequency, float sampleRate) {
-    static float phase = 0.0f;
+    float phase = 0.0f;
     float phaseIncrement = 2.0f * M_PI * frequency / sampleRate;
 
     for (size_t i = 0; i < length; ++i) {
@@ -364,3 +382,17 @@ void generateWhiteNoise(float *buffer, size_t length) {
         buffer[i] = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f; // Random value between -1 and 1
     }
 }
+
+#ifdef UNIT_TESTING
+float* get_window_coefficients(void) {
+    return window_coefficients;
+}
+
+size_t* get_bit_reversal_indices(void) {
+    return bit_reversal_indices;
+}
+
+float complex* get_twiddle_factors(void) {
+    return twiddle_factors;
+}
+#endif

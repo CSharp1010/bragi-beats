@@ -393,7 +393,7 @@ void DrawSampleInfo(Layout layout) {
 }
 
 void DrawVisualizerSelection(bool* showList, Rectangle buttonBounds) {
-    const char* visualizerNames[] = {"Bar Chart", "Iridescent"};
+    const char* visualizerNames[] = {"Bar Chart", "Iridescent", "3D Time Tunnel"};
     int visualizerCount = sizeof(visualizerNames) / sizeof(visualizerNames[0]);
     int paddingBetweenButtonAndList = 10;
     int buttonHeight = 30;
@@ -474,6 +474,9 @@ void RenderVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSp
             break;
         case VISUALIZER_IRIDESCENT:
             DrawIridescentVisualizer(out_smooth, numBins, visualizerSpace);
+            break;
+        case VISUALIZER_3D_TIME_TUNNEL:
+            Draw3DTimeTunnelVisualizer(out_smooth, numBins, visualizerSpace);
             break;
         default:
             DrawBarChart(out_smooth, numBins, visualizerSpace);

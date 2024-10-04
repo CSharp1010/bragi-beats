@@ -10,7 +10,8 @@
 
 typedef enum {
     VISUALIZER_BAR_CHART,
-    VISUALIZER_IRIDESCENT
+    VISUALIZER_IRIDESCENT,
+    VISUALIZER_3D_TIME_TUNNEL
 } VisualizerType;
 
 typedef struct SongNode {

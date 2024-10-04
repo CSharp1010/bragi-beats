@@ -14,6 +14,6 @@ typedef struct {
 
 void DrawBarChart(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
 void DrawIridescentVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
-void DrawIridescentVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
+void Draw3DTimeTunnelVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace);
 
 #endif // VISUALIZERS_H
