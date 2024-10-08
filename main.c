@@ -1,5 +1,3 @@
-// MusicVisualizer/main.c
-
 // main.c
 
 #include <raylib.h>

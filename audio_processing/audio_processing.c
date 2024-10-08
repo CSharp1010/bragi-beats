@@ -24,15 +24,43 @@ static float complex twiddle_factors[FFT_SIZE / 2];
 TestSignalType currentTestSignal;
 bool testMode = false;
 
-// Function to precompute the window coefficients (Hanning window)
-void compute_window_coefficients(void) {
+/**
+ * @brief Compute the window coefficients using a Hanning window function.
+ *
+ * This function precomputes the coefficients for a Hanning window,
+ * which are used to reduce spectral leakage in the FFT.
+*/
+void compute_hann_window_coefficients(void) {
     for (size_t i = 0; i < FFT_SIZE; ++i) {
         float t = (float)i / (FFT_SIZE - 1);
         window_coefficients[i] = 0.5f - 0.5f * cosf(2.0f * M_PI * t);
     }
 }
 
-// Function to precompute bit-reversal indices
+/**
+ * @brief Compute the window coefficients using the Blackman-Harris window
+ * function.
+ *
+ * This function precomputes the coefficients for a Blackman-Harris window,
+ * which are used to reduce spectral leakage in the FFT.
+ */
+void compute_bh_window_coefficients(void) {
+    for (size_t i = 0; i < FFT_SIZE; ++i) {
+        float t = (float)i / (FFT_SIZE - 1);
+        window_coefficients[i] = 0.35875f - 0.48829f * cosf(2.0f * M_PI * t) 
+                                + 0.14128f * cosf(4.0f * M_PI * t) 
+                                - 0.01168f * cosf(6.0f * M_PI * t);
+    }
+}
+
+/**
+ * @brief Compute bit-reversal indices for the FFT algorithm.
+ *
+ * @param n The size of the FFT (must be a power of 2).
+ *
+ * This function precomputes the bit-reversal indices required for rearranging
+ * the input data before performing the FFT.
+*/
 void compute_bit_reversal_indices(size_t n) {
     size_t log2n = (size_t)log2(n);
     for (size_t i = 0; i < n; ++i) {
@@ -46,17 +74,33 @@ void compute_bit_reversal_indices(size_t n) {
     }
 }
 
-// Function to precompute twiddle factors
+/**
+ * @brief Compute the twiddle fectors for the FFT algorithm.
+ *
+ * @param n The size of the FFT (must be a power of 2).
+ *
+ * This function precomputes the complex exponential (twiddle) factors
+ * used in the FFT algorithm to improve performance.
+*/
 void compute_twiddle_factors(size_t n) {
     for (size_t k = 0; k < n / 2; ++k) {
         twiddle_factors[k] = cexpf(-2.0f * I * M_PI * k / n);
     }
 }
 
-// Function to initialize the AudioData structure
+/**
+ * @brief Initialize the AudioData structure and precompute necessary
+ * coefficients.
+ *
+ * @param audioData Pointer to the AudioData structure to initialize.
+ *
+ * This function initializes the audio data buffers and precomputes the window
+ * coefficients, bit-reversal indices, and twiddle factors required for the
+ * FFT.
+ */
 void init_audio_data(AudioData *audioData) {
     audioData->bufferIndex = 0;
-    compute_window_coefficients();
+    compute_bh_window_coefficients();
     compute_bit_reversal_indices(FFT_SIZE);
     compute_twiddle_factors(FFT_SIZE);
 
@@ -69,7 +113,17 @@ void init_audio_data(AudioData *audioData) {
     memset(audioData->out_power, 0, sizeof(audioData->out_power));
 }
 
-// Iterative FFT implementation with precomputed twiddle factors and bit-reversal indices
+/**
+ * @brief Perform an in-place iterative FFT using precomputed twiddle factors
+ * and bit-reversal indices.
+ *
+ * @param audioData Pointer to the AudioData structure containing input and
+ * output buffers.
+ * @param n The size of the FFT (must be a power of 2).
+ *
+ * This function performs an in-place Fast Fourier Transform (FFT) on the input
+ * data, storing the complex frequency-domain results in the output buffer.
+ */
 void fft(AudioData *audioData, size_t n) {
     if (n == 0 || (n & (n - 1)) != 0) {
         // n must be a power of 2 and greater than 0
@@ -101,10 +155,28 @@ void fft(AudioData *audioData, size_t n) {
 
 static AudioData *audioDataPtr = NULL;
 
+/**
+ * @brief Set the global pointer to teh AudioData structure for use in callbacks.
+ *
+ * @param audioData Pointer to the AudioData structure to set.
+ *
+ * This function sets the global `audioDataPtr` to the provided AudioData
+ * pointer, allowing teh callback function to access and modify audio data.
+ */
 void set_audio_data(AudioData *audioData) {
     audioDataPtr = audioData;
 }
 
+/**
+ * @brief Audio processing callback function for handling incoming audio data.
+ *
+ * @param bufferData Pointer to the buffer containing audio frames.
+ * @praram frames The number of frames in the buffer.
+ *
+ * This function is called whenever new audio data is available. It copies
+ * the audio data into the `in_raw` buffer of the AudioData structure for
+ * further processing
+ */
 void callback(void *bufferData, unsigned int frames) {
     if (audioDataPtr == NULL) return;
 
@@ -124,12 +196,32 @@ void callback(void *bufferData, unsigned int frames) {
     }
 }
 
-// Function to apply the window function
+/**
+ * @brief Apply a window function to the input signal
+ *
+ * @param input The input signal array
+ * @param output The output array to store the windowed signal
+ * @param The number of samples to process
+ *
+ * This function multiplies each sample of the input signal by the corresponding
+ * window coefficient reducing spectral leakage in the FFT.
+ */
 void apply_window_function(const float input[], float output[], size_t n) {
     for (size_t i = 0; i < n; ++i) {
         output[i] = input[i] * window_coefficients[i];
     }
 }
+
+/**
+ * @brief Process the FFT and compute the amplitude specturm for visualization
+ * @param audioData Pointer to the AudioData structure containing audio buffers
+ * @return The number of frequency bins computed
+ *
+ * This function handles the processing of audio data for visualization,
+ * including generating test signals, applying window functios, performing the
+ * FFT, computing logarithmically spaced frequency bins, and applying perceptual
+ * weighting and smoothing.
+ */
 
 // Function to process FFT and compute amplitude spectrum
 size_t ProcessFFT(AudioData *audioData) {
@@ -196,12 +288,10 @@ size_t ProcessFFT(AudioData *audioData) {
         float freqEnd = powf(10.0f, logFreqEnd);
         float freqCenter = (freqStart + freqEnd) / 2.0f;
 
-        size_t binStart = (size_t)(freqStart / (SAMPLE_RATE / 2.0f) * fftSizeOver2);
-        size_t binEnd = (size_t)(freqEnd / (SAMPLE_RATE / 2.0f) * fftSizeOver2);
+        size_t binStart = (size_t)((freqStart / (SAMPLE_RATE / 2.0f)) * fftSizeOver2);
+        size_t binEnd = (size_t)((freqEnd / (SAMPLE_RATE / 2.0f)) * fftSizeOver2);
         if (binEnd > fftSizeOver2) binEnd = fftSizeOver2;
-        if (binStart >= binEnd) {
-            binStart = binEnd > 0 ? binEnd - 1 : 0;
-        }
+        if (binStart >= binEnd) binStart = (binEnd > 0) ? binEnd - 1 : 0;
 
         size_t binCount = binEnd - binStart;
         if (binCount == 0) binCount = 1; // Avoid division by zero
@@ -215,13 +305,7 @@ size_t ProcessFFT(AudioData *audioData) {
         float binAmplitude = sum / binCount;
 
         float weight = getPerceptualWeight(freqCenter) / maxWeight;
-        // weight = powf(weight, weightScalingFactor);
-        if (weight > 1.0f) {
-            weight = 1.0f + (weight - 1.0f) * weightScalingFactor;
-        } else {
-            weight = 1.0f - (1.0f - weight) * weightScalingFactor;
-        }
-
+        weight = powf(weight, weightScalingFactor);
         binAmplitude *= weight;
 
         audioData->out_log[i] = binAmplitude;
@@ -231,37 +315,25 @@ size_t ProcessFFT(AudioData *audioData) {
         }
     }
 
-    // Apply log scaling and normalization in one loop
-    maxAmplitude = (maxAmplitude > EPSILON) ? maxAmplitude : EPSILON;
-
-    // Apply log scaling
-    for (size_t i = 0; i < numberOfFftBins; ++i) {
-        audioData->out_log[i] = log10f(audioData->out_log[i] + EPSILON);
-    }
-
     // Find the minimum and maximum log values
-    float minLogAmplitude = audioData->out_log[0];
-    float maxLogAmplitude = audioData->out_log[0];
-    for (size_t i = 1; i < numberOfFftBins; ++i) {
-        if (audioData->out_log[i] < minLogAmplitude) {
-            minLogAmplitude = audioData->out_log[i];
-        }
-        if (audioData->out_log[i] > maxLogAmplitude) {
-            maxLogAmplitude = audioData->out_log[i];
-        }
+    float minLogAmplitude = INFINITY;
+    float maxLogAmplitude = -INFINITY;
+    for (size_t i = 0; i < numberOfFftBins; ++i) {
+        audioData->out_log[i] = 20.0f * log10f(audioData->out_log[i] + EPSILON);
+        if (audioData->out_log[i] < minLogAmplitude) minLogAmplitude = audioData->out_log[i];
+        if (audioData->out_log[i] > maxLogAmplitude) maxLogAmplitude = audioData->out_log[i];
     }
 
-    // Avoid division by zero
-    float amplitudeRange = maxLogAmplitude - minLogAmplitude;
-    if (amplitudeRange < EPSILON) amplitudeRange = EPSILON;
+    float floor = -60.0f;
+    float range = maxLogAmplitude - floor;
 
-    // Normalize to range [0, 1]
     for (size_t i = 0; i < numberOfFftBins; ++i) {
-        audioData->out_log[i] = (audioData->out_log[i] - minLogAmplitude) / amplitudeRange;
+        audioData->out_log[i] = (audioData->out_log[i] - floor) / range;
+        audioData->out_log[i] = fmaxf(0.0f, fminf(1.0f, audioData->out_log[i]));
     }
 
     // Apply smoothing
-    float smoothness = 7.5f;
+    float smoothness = 10.0f;
     for (size_t i = 0; i < numberOfFftBins; ++i) {
         audioData->out_smooth[i] += (audioData->out_log[i] - audioData->out_smooth[i]) * smoothness * dt;
     }
@@ -275,14 +347,29 @@ size_t ProcessFFT(AudioData *audioData) {
     return numberOfFftBins;
 }
 
-// Function to compute the phase spectrum
+/**
+ * @brief Compute the phase spectrum from the FFT output.
+ * @param audioData Pointer to the AudioData structure containing FFT results.
+ * @param n The number of samples (FFT size).
+ *
+ * This function computes the phase angle (in radians) for each frequency bin
+ * from the complex FFT output.
+ */
 void computePhase(AudioData *audioData, size_t n) {
     for (size_t i = 0; i < n; ++i) {
         audioData->out_phase[i] = cargf(audioData->out_raw[i]);
     }
 }
 
-// Function to compute the power spectrum
+/**
+ * @brief Compute the power spectrum from the FFT output.
+ *
+ * @param audioData Pointer to the AudioData structure containing FFT results.
+ * @param n The number of samples (FFT size).
+ *
+ * This function computes the power (magnitude squared) of each frequency bin
+ * from the complex FFT output.
+ */
 void computePowerSpectrum(AudioData *audioData, size_t n) {
     for (size_t i = 0; i < n; ++i) {
         float amplitude = cabsf(audioData->out_raw[i]);
@@ -290,7 +377,18 @@ void computePowerSpectrum(AudioData *audioData, size_t n) {
     }
 }
 
-// Function to detect peaks in the amplitude spectrum
+/**
+ * @brief Detect peaks in the amplitude spectrum.
+ *
+ * @param audioData Pointer to the AudioData structure containing amplitude data.
+ * @param n The number of samples (FFT size).
+ * @param peak Array ot store peak detection results (true if peaks, false
+ * otherwise).
+ *
+ * This function identifies local maxima in the amplitude spectrum,
+ * marking positions where a frequency bin has a higher amplitude than its
+ * immediate neighbors
+ */
 void detectPeaks(AudioData *audioData, size_t n, bool peaks[]) {
     peaks[0] = false;
     for (size_t i = 1; i < n - 1; ++i) {
@@ -300,7 +398,18 @@ void detectPeaks(AudioData *audioData, size_t n, bool peaks[]) {
     peaks[n - 1] = false;
 }
 
-// Function to apply a bandpass filter to the frequency domain data
+/**
+ * @brief Apply a bandpass filter to the frequency-domain data.
+ *
+ * @param audioData Pointer to the AudioData structure containing FFT results.
+ * @param n The number of samples (FFT size).
+ * @param lowCut The lowercutoff frequency (Hz).
+ * @param highCut The upper cutoff frequency (Hz).
+ * @param sampleRate The sampling rate of the audio data (Hz).
+ *
+ * This function zeroes out frequency components outside the specifies frequency
+ * range, effectively applying a bandpass filter in the frequency domain.
+ */
 void applyBandpassFilter(AudioData *audioData, size_t n, float lowCut, float highCut, float sampleRate) {
     for (size_t i = 0; i < n; ++i) {
         float frequency = (float)i / n * sampleRate;
@@ -310,6 +419,15 @@ void applyBandpassFilter(AudioData *audioData, size_t n, float lowCut, float hig
     }
 }
 
+/**
+ * @brief Calculate the perceptual wieghting (A-weighting for a gven frequency).
+ *
+ * @param frequency The frequency in Hz.
+ * @return The perceptual weight for the frequency.
+ *
+ * This function computes a simplified A-weighting for a given frequency, which
+ * models the human ear's sensitivity to different frequencies.
+ */
 float getPerceptualWeight(float frequency) {
     // Simplified A-weighting approximation
     float fSquared = frequency * frequency;
@@ -320,6 +438,16 @@ float getPerceptualWeight(float frequency) {
     return aWeight;
 }
 
+/**
+ * @brief Computer the maximum perceptual wight within a frequency range.
+ *
+ * @param minFreq The minimum frequency in Hz.
+ * @param maxFreq The maximum frequency in Hz.
+ * @return The maximum perceptual weight found within the frequency range.
+ *
+ * This function calculates the maximum A-weighting value over a specified
+ * frequency range, which is used to normalize perceptual weights.
+ */
 float getMaxPerceptualWeight(float minFreq, float maxFreq) {
     float maxWeight = 0.0f;
     int numSamples = 1000; // Number of samples to compute within the range
@@ -333,7 +461,7 @@ float getMaxPerceptualWeight(float minFreq, float maxFreq) {
     return maxWeight;
 }
 
-// testing
+// test signal generation functions
 
 void generateSineWave(float *buffer, size_t length, float frequency, float sampleRate) {
     float phase = 0.0f;
