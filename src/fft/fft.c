@@ -1,7 +1,7 @@
 // audio_processing.c
 
-#include "audio_processing.h"
-#include "../presentation/playback.h"
+#include "../../include/fft.h"
+#include "../../include/playback.h"
 #include <complex.h>
 #include <math.h>
 #include <assert.h>

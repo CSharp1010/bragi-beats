@@ -7,9 +7,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include "presentation/playback.h"
-#include "audio_processing/audio_processing.h"
-#include "presentation/ui_renderer.h"
+#include "../include/playback.h"
+#include "../include/fft.h"
+#include "../include/ui.h"
 
 #define MAX_SONGS 100
 #define ARRAY_LEN(xs) (sizeof(xs) / sizeof((xs)[0]))

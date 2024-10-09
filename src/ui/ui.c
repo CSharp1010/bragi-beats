@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "playback.h"
-#include "ui_renderer.h"
-#include "visualizers.h"
-#include "../audio_processing/audio_processing.h"
+#include "../../include/playback.h"
+#include "../../include/ui.h"
+#include "../../include/visualizers.h"
+#include "../../include/fft.h"
 #include <raylib.h>
 
 extern int screenWidth;

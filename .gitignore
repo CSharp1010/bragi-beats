@@ -1,4 +1,22 @@
 .DS_Store
+# Build artifacts
+/build/
+/tests/build/
+*.o
+*.dSYM/
+bragibeats
+test/test_audioProcessing
+
+# Generated files
+*.aux
+*.log
+*.out
+*.pdf
+*.toc
+
+# Other temporary files
+*~
+
 
 # Build artifacts
 bragibeats

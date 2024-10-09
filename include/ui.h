@@ -5,7 +5,7 @@
 
 #include <raylib.h>
 #include <stddef.h>
-#include "../audio_processing/audio_processing.h"
+#include "fft.h"
 
 // Structure to represent the center point of the visualizer space
 typedef struct {

@@ -1,10 +1,13 @@
 // visualizers.c
 
 #include "visualizers.h"
-
 #include <raylib.h>
 #include <math.h>
 #include "rlgl.h"
+
+#ifndef RL_TRIANGLE_STRIP
+#define RL_TRIANGLE_STRIP 5 // OpenGL primitive type GL_TRIANGLE_STRIP
+#endif
 
 // Define colors
 #define COLOR_ACCENT        (Color){ 0, 122, 255, 255 }   // Apple Blue
@@ -131,7 +134,7 @@ void DrawIridescentVisualizer(float out_smooth[], size_t numBins, Rectangle visu
         float hue = fmodf(angle + hueOffset, 360.0f);
 
         // Get color from HSV
-        Color color = ColorFromHSV(hue, 1.0f, 1.0f);
+        Color color = ColorFromHSV(hue, 0.5f, 0.8f);
 
         // Calculate start and end points of the arc
         float startAngle = angle;
@@ -179,91 +182,43 @@ void DrawIridescentVisualizer(float out_smooth[], size_t numBins, Rectangle visu
 }
 
 void Draw3DTimeTunnelVisualizer(float out_smooth[], size_t numBins, Rectangle visualizerSpace) {
-    static float cameraZ = 0.0f; // Camera position along the Z-axis
-    static float rotationAngle = 0.0f;
-    const float tunnelSpeed = 10.0f; // Speed of movement through the tunnel
+    int snakeLength = 100; // Number of segments in the snake
+    float segmentLength = visualizerSpace.width / (float)snakeLength;
+    static Vector2 snakePositions[100];
+    static float time = 0.0f;
 
-    // Set up camera
-    Camera camera = { 0 };
-    camera.position = (Vector3){ 0.0f, 0.0f, cameraZ };
-    camera.target = (Vector3){ 0.0f, 0.0f, cameraZ + 1.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 90.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
-
-    // Update camera position
-    cameraZ -= tunnelSpeed * GetFrameTime();
-
-    // Begin 3D mode
-    BeginMode3D(camera);
-
-    // Enable depth test for proper rendering
-    rlDisableBackfaceCulling();
-    rlEnableDepthTest();
-
-    // Draw tunnel segments
-    int segmentsAhead = 20; // Number of tunnel segments to draw ahead
-    float segmentLength = 5.0f; // Length of each tunnel segment
-    float baseRadius = 5.0f; // Base radius of the tunnel
-
-    for (int i = 0; i < segmentsAhead; i++) {
-        float zPos = cameraZ + i * segmentLength;
-
-        // Calculate radius modulation based on audio data
-        size_t binIndex = i % numBins;
-        float amplitude = out_smooth[binIndex];
-        float radius = baseRadius + amplitude * 2.0f; // Modulate radius
-
-        // Create a torus (donut shape) for the tunnel segment
-        Vector3 position = { 0.0f, 0.0f, zPos };
-
-        // Calculate the rotation based on the current segment
-        float segmentRotation = rotationAngle + i * 10.0f;
-
-        // Determine the color based on audio data
-        float hue = fmodf((amplitude * 360.0f) + (i * 10.0f), 360.0f);
-        Color color = ColorFromHSV(hue, 1.0f, 1.0f);
-
-        // Draw the tunnel segment
-        // Since Raylib doesn't have a built-in torus, we'll draw a circle of quads
-        int sides = 32;
-        float angleStep = 360.0f / sides;
-        for (int j = 0; j < sides; j++) {
-            float angle1 = DEG2RAD * (j * angleStep + segmentRotation);
-            float angle2 = DEG2RAD * ((j + 1) * angleStep + segmentRotation);
-
-            Vector3 p1 = {
-                position.x + radius * cosf(angle1),
-                position.y + radius * sinf(angle1),
-                position.z
-            };
-            Vector3 p2 = {
-                position.x + radius * cosf(angle2),
-                position.y + radius * sinf(angle2),
-                position.z
-            };
-            Vector3 p3 = { p2.x, p2.y, position.z - segmentLength };
-            Vector3 p4 = { p1.x, p1.y, position.z - segmentLength };
-
-            // Draw quad
-            rlBegin(RL_QUADS);
-            rlColor4ub(color.r, color.g, color.b, color.a);
-            rlVertex3f(p1.x, p1.y, p1.z);
-            rlVertex3f(p2.x, p2.y, p2.z);
-            rlVertex3f(p3.x, p3.y, p3.z);
-            rlVertex3f(p4.x, p4.y, p4.z);
-            rlEnd();
+    // Initialize the snake positions only once
+    static bool initialized = false;
+    if (!initialized) {
+        for (int i = 0; i < snakeLength; i++) {
+            snakePositions[i] = (Vector2){ visualizerSpace.x + i * segmentLength, visualizerSpace.y + visualizerSpace.height / 2 };
         }
+        initialized = true;
     }
 
-    // Disable depth test
-    rlDisableDepthTest();
+    // Update time
+    time += GetFrameTime();
 
-    // End 3D mode
-    EndMode3D();
+    // Map audio data to movement
+    float amplitude = 0.0f;
+    for (size_t i = 0; i < numBins; i++) {
+        amplitude += out_smooth[i];
+    }
+    amplitude /= (float)numBins; // Get average amplitude
+    amplitude *= 200.0f; // Scale amplitude to a suitable range
 
-    // Update rotation angle for the twisting effect
-    rotationAngle += 20.0f * GetFrameTime();
+    // Update snake positions based on sine wave and audio amplitude
+    for (int i = 0; i < snakeLength; i++) {
+        float yOffset = sinf(time * 5.0f + (float)i * 0.2f) * amplitude;
+        snakePositions[i].y = visualizerSpace.y + visualizerSpace.height / 2 + yOffset;
+    }
 
-    // Optional: Draw overlay or additional effects here
+    // Draw the snake
+    for (int i = 0; i < snakeLength - 1; i++) {
+        // Calculate color based on position or index
+        float t = (float)i / (float)(snakeLength - 1);
+        Color color = ColorFromHSV(t * 360.0f, 0.8f, 0.9f);
+
+        DrawLineEx(snakePositions[i], snakePositions[i + 1], 5.0f, color);
+    }
 }
